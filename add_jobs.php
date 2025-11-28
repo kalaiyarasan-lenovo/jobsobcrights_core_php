@@ -1,4 +1,8 @@
 <?php
+
+use PHPMailer\PHPMailer\PHPMailer;
+    use PHPMailer\PHPMailer\SMTP;
+    use PHPMailer\PHPMailer\Exception;
 session_start();
 include("config/config_db.php");
 
@@ -28,11 +32,59 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
     $query = "INSERT INTO records (name, vacancies, description, place_of_posting, education_qualification, selection_process, app_fee, type, age_limits, start_age, end_age, from_date, to_date, official_website, how_to_apply)
               VALUES ('$name', '$vacancies', '$description', '$place_of_posting', '$education_qualification', '$selection_process', '$app_fee', '$type', '$age_limits', '$start_age', '$end_age', '$from_date', '$to_date', '$official_website', '$how_to_apply')";
 
-    if (mysqli_query($conn, $query)) {
-        header("Location: demo1.php");
-    } else {
-        echo "Error: " . $query . mysqli_error($conn);
+    // After mysqli_query($conn, $query) success block
+if (mysqli_query($conn, $query)) {
+    // Job added successfully — Send emails using PHPMailer
+    require 'PHPMailer/src/PHPMailer.php';
+    require 'PHPMailer/src/SMTP.php';
+    require 'PHPMailer/src/Exception.php';
+    
+    
+
+    $mail = new PHPMailer(true);
+    
+    try {
+        // SMTP Configuration (Gmail example - free)
+        $mail->isSMTP();
+        $mail->Host       = 'smtp.gmail.com'; 
+        $mail->SMTPAuth   = true;
+        $mail->Username   = 'yourgmail@gmail.com';  // Your Gmail
+        $mail->Password   = 'your_app_password';    // Gmail App Password (not regular password)
+        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+        $mail->Port       = 587;
+
+        // Fetch subscribers
+        $sub_query = "SELECT email FROM subscribers_table";
+        $sub_result = mysqli_query($conn, $sub_query);
+        
+        while ($sub_row = mysqli_fetch_assoc($sub_result)) {
+            $mail->clearAddresses();
+            
+            $mail->setFrom('yourgmail@gmail.com', 'Job Portal');
+            $mail->addAddress($sub_row['email']);
+
+            $mail->isHTML(true);
+            $mail->Subject = 'New Job Posted: ' . $name;
+            $mail->Body    = "
+                <h3>New Job Alert!</h3>
+                <p><strong>Organization:</strong> $name</p>
+                <p><strong>Vacancies:</strong> $vacancies</p>
+                <p><strong>Description:</strong><br>" . nl2br($description) . "</p>
+                <p><a href='http://localhost/your_project_folder/demo1.php' style='background:#dc3545;color:white;padding:10px 20px;text-decoration:none;border-radius:5px;'>View All Jobs</a></p>
+            ";
+
+            $mail->send();
+            echo "Email sent to: " . $sub_row['email'] . "<br>"; // For testing
+        }
+        
+    } catch (Exception $e) {
+        echo "Email Error: {$mail->ErrorInfo}";
     }
+
+    header("Location: demo1.php");
+    exit();
+}
+
 }
 ?>
 

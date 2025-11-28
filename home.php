@@ -207,6 +207,11 @@ $result = $conn->query($query);
             <img src="obclogo.jpg" width="80" height="50" class="d-inline-block align-top" alt="" loading="lazy">
         </a>
 
+        <!-- Blinking Subscribe button (top, like previous) -->
+        <a href="subscribe.php" class="btn btn-danger blink ml-2" style="font-weight:bold;">
+            Subscribe
+        </a>
+
         <h3 class="navbar-center font-weight-bold">Jobs</h3>
 
         <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
