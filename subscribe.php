@@ -13,6 +13,11 @@ if ($_SERVER["REQUEST_METHOD"] == "POST") {
         $error_message = "Email is required.";
     } elseif (!filter_var($email, FILTER_VALIDATE_EMAIL)) {
         $error_message = "Please enter a valid email address.";
+    } elseif (strlen($email) > 100) {
+        $error_message = "Email must be 100 characters or less.";
+    } elseif (!preg_match('/^[A-Za-z0-9._%+\-]+@[A-Za-z0-9.\-]+\.[A-Za-z]{2,}$/', $email)) {
+        // extra regex check (optional, little stricter than FILTER_VALIDATE_EMAIL)
+        $error_message = "Please enter a properly formatted email address.";
     } else {
         // Check if email already exists
         $check_query = "SELECT id FROM subscribers_table WHERE email = ?";
