@@ -2,8 +2,10 @@
 session_start();
 include("config/config_db.php");
 
+
 // Check if user is admin
 $logged_in_as_admin = isset($_SESSION['login_user']) && $_SESSION['login_user'] == 'admin';
+
 
 // Fetch total number of vacancies
 $totalVacanciesQuery = "SELECT SUM(vacancies) AS total_vacancies FROM records";
@@ -11,9 +13,11 @@ $totalVacanciesResult = $conn->query($totalVacanciesQuery);
 $totalVacanciesRow = $totalVacanciesResult->fetch_assoc();
 $totalVacancies = $totalVacanciesRow['total_vacancies'];
 
+
 // Handle filtering
 $query = "SELECT * FROM records";
 $conditions = array();
+
 
 if (isset($_POST['submit'])) {
     if (!empty($_POST['type'])) {
@@ -26,84 +30,94 @@ if (isset($_POST['submit'])) {
     }
 }
 
+
 if (count($conditions) > 0) {
     $query .= " WHERE " . implode(' AND ', $conditions);
 }
+
 
 $result = $conn->query($query);
 ?>
 
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Jobs</title>
-    <link rel="icon" type="images/obc-logo.jpg" href="images/obc-logo.jpg">
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.10.21/css/jquery.dataTables.css">
     <link rel="stylesheet" href="https://code.jquery.com/ui/1.13.3/themes/base/jquery-ui.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- Google tag (gtag.js) -->
-<script async src="https://www.googletagmanager.com/gtag/js?id=G-ZNHVQZ3ZYH"></script>
-<script>
-  window.dataLayer = window.dataLayer || [];
-  function gtag(){dataLayer.push(arguments);}
-  gtag('js', new Date());
-
-  gtag('config', 'G-ZNHVQZ3ZYH');
-</script>
     <style>
         .btn-red {
-            background-color:red;
-            border-color:red;
+            background-color: red;
+            border-color: red;
             color: white;
         }
+
         .btn-red:hover {
-            background-color:gold;
-            border-color:red;
+            background-color: gold;
+            border-color: red;
         }
+
         .highlight {
             background-color: yellow;
             font-weight: bold;
             padding: 10px;
             border-radius: 5px;
         }
+
         @keyframes blink {
-            0% { opacity: 1; }
-            50% { opacity: 0; }
-            100% { opacity: 1; }
+            0% {
+                opacity: 1;
+            }
+
+            50% {
+                opacity: 0;
+            }
+
+            100% {
+                opacity: 1;
+            }
         }
+
         .blink {
             animation: blink 1s infinite;
         }
+
         .btn-yellow {
-            background-color:lightgray;
-            border-color:black;
+            background-color: lightgray;
+            border-color: black;
             color: black;
             font-weight: bold;
         }
+
         .btn-yellow:hover {
-            background-color:darkgray;
+            background-color: darkgray;
             border-color: darkorange;
         }
+
         .btn-total-vacancies {
             background-color: white;
             color: red;
-            
         }
+
         .btn-total-vacancies:hover {
             background-color: white;
             color: black;
-            
         }
+
         .navbar-brand {
             display: flex;
             align-items: center;
         }
+
         .navbar-brand img {
             margin-right: 10px;
         }
+
         .navbar-center {
             position: absolute;
             left: 50%;
@@ -113,57 +127,81 @@ $result = $conn->query($query);
             color: azure;
             font-style: normal;
         }
+
         .navbar-nav {
             margin-left: auto;
         }
-        .nav-item{
+
+        .nav-item {
             font-weight: bold;
         }
-        
+
         .join-us-box i {
             margin-left: 5px;
             font-size: 40px;
-            font-weight:bolder;
-            color: #25D366; /* WhatsApp green color */
+            font-weight: bolder;
+            color: #25D366;
+            /* WhatsApp green color */
         }
+
         .join-us-box i:hover {
             margin-left: 5px;
             font-size: 40px;
-            font-weight:bolder;
-            color: white; /* WhatsApp green color */
+            font-weight: bolder;
+            color: white;
+            /* WhatsApp green color */
         }
+
         .nav-item.dropdown {
-    position: relative;
-}
+            position: relative;
+        }
 
-.dropdown-menu {
-    display: none;
-    position: absolute;
-    top: 100%;
-    left: 0;
-    background-color: #fff;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    list-style: none;
-    padding: 0;
-    margin: 0;
-    min-width: 200px;
-    z-index: 1000;
-}
+        .dropdown-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            background-color: #fff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            list-style: none;
+            padding: 0;
+            margin: 0;
+            min-width: 200px;
+            z-index: 1000;
+        }
 
-.dropdown-item {
-    padding: 10px 20px;
-    text-decoration: none;
-    color: #000;
-    display: block;
-}
+        .dropdown-item {
+            padding: 10px 20px;
+            text-decoration: none;
+            color: #000;
+            display: block;
+        }
 
-.dropdown-item:hover {
-    background-color: #f1f1f1;
-}
+        .dropdown-item:hover {
+            background-color: #f1f1f1;
+        }
 
-.nav-item.dropdown:hover .dropdown-menu {
-    display: block;
-}
+        .nav-item.dropdown:hover .dropdown-menu {
+            display: block;
+        }
+
+        /* --- CSS FOR POPUP: SCROLLABLE BODY + DULL BACKGROUND --- */
+        body.modal-open {
+            overflow: auto !important;
+            padding-right: 0 !important;
+        }
+        
+        .modal {
+            background-color: rgba(0, 0, 0, 0.5) !important; /* Dull background */
+            overflow-x: hidden;
+            overflow-y: hidden;
+            pointer-events: none;
+        }
+
+        .modal-dialog {
+            pointer-events: auto;
+        }
+        /* -------------------------------------------------------- */
 
     </style>
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
@@ -171,38 +209,46 @@ $result = $conn->query($query);
     <script src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
     <script>
-    $(function() {
-        $("#from_date").datepicker();
-        $("#to_date").datepicker();
-        $('#jobsTable').DataTable();
-    });
+        $(function () {
+            $("#from_date").datepicker();
+            $("#to_date").datepicker();
+            $('#jobsTable').DataTable();
+        });
 
-    function deleteRecord(id) {
-        if (confirm('Are you sure you want to delete this record?')) {
-            window.location.href = 'delete.php?id=' + id;
+        function deleteRecord(id) {
+            if (confirm('Are you sure you want to delete this record?')) {
+                window.location.href = 'delete.php?id=' + id;
+            }
         }
-    }
     </script>
 </head>
+
 <body>
     <!-- Navbar with Logo -->
     <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
         <a class="navbar-brand" href="https://obcrights.org/">
             <img src="obclogo.jpg" width="80" height="50" class="d-inline-block align-top" alt="" loading="lazy">
         </a>
-        
+
+        <!-- Blinking Subscribe button (top, like previous) -->
+        <a href="subscribe.php" class="btn btn-danger blink ml-2" style="font-weight:bold;">
+            Subscribe
+        </a>
+
         <h3 class="navbar-center font-weight-bold">Jobs</h3>
-        
-        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+
+        <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="navbarNav">
             <ul class="navbar-nav ml-auto">
-            <li class="nav-item">
+                <li class="nav-item">
                     <a class="nav-link" href="home.php">Home <span class="sr-only">(current)</span></a>
                 </li>
                 <li class="nav-item dropdown">
-                    <a class="nav-link dropdown-toggle" href="#" id="about" role="button" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    <a class="nav-link dropdown-toggle" href="#" id="about" role="button" data-toggle="dropdown"
+                        aria-haspopup="true" aria-expanded="false">
                         About
                     </a>
                     <div class="dropdown-menu" aria-labelledby="about">
@@ -222,7 +268,8 @@ $result = $conn->query($query);
                     <a class="nav-link" href="save_contact.php">Contact <span class="sr-only">(current)</span></a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link join-us-box" href="https://chat.whatsapp.com/Dj6ZIz2VicOHKHaDyvbSxi" target="_blank">
+                    <a class="nav-link join-us-box" href="https://chat.whatsapp.com/Dj6ZIz2VicOHKHaDyvbSxi"
+                        target="_blank">
                         <i class="fab fa-whatsapp"></i>
                     </a>
                 </li>
@@ -235,7 +282,8 @@ $result = $conn->query($query);
         <!-- Display Total Vacancies -->
         <div class="row mt-4 justify-content-center">
             <div class="col-md-4 text-center">
-                <h5 class="btn btn-total-vacancies btn-block"><b>Total Vacancies: <span><?php echo htmlspecialchars($totalVacancies); ?></span></b></h5>
+                <h5 class="btn btn-total-vacancies btn-block"><b>Total Vacancies:
+                        <span><?php echo htmlspecialchars($totalVacancies); ?></span></b></h5>
             </div>
         </div>
         <div class="row mt-4">
@@ -262,17 +310,17 @@ $result = $conn->query($query);
         </div>
 
         <!-- Job Category Buttons -->
-<div class="row mt-3">
-    <div class="col-md-4 text-center">
-        <a href="government_jobs.php" class="btn btn-yellow btn-block">Government Jobs</a>
-    </div>
-    <div class="col-md-4 text-center">
-        <a href="bank_jobs.php" class="btn btn-yellow btn-block">Bank Jobs</a>
-    </div>
-    <div class="col-md-4 text-center">
-        <a href="private_jobs.php" class="btn btn-yellow btn-block">Private Jobs</a>
-    </div>
-</div>
+        <div class="row mt-3">
+            <div class="col-md-4 text-center">
+                <a href="government_jobs.php" class="btn btn-yellow btn-block">Government Jobs</a>
+            </div>
+            <div class="col-md-4 text-center">
+                <a href="bank_jobs.php" class="btn btn-yellow btn-block">Bank Jobs</a>
+            </div>
+            <div class="col-md-4 text-center">
+                <a href="private_jobs.php" class="btn btn-yellow btn-block">Private Jobs</a>
+            </div>
+        </div>
 
         <div class="row mt-4">
             <table id="jobsTable" class="table table-striped table-hover w-100">
@@ -285,41 +333,85 @@ $result = $conn->query($query);
                         <th>Location</th>
                         <th>Job Type</th>
                         <th>Age Limits</th>
-                        <th>Last Date</th>
+                        <th>To</th>
                         <th>Action</th>
                     </tr>
                 </thead>
                 <tbody>
-                <?php
-                if ($result->num_rows > 0) {
-                    while ($row = $result->fetch_assoc()) {
-                        echo "<tr>";
-                        echo "<td>" . htmlspecialchars($row['id']) . "</td>";
-                        echo "<td>" . htmlspecialchars($row['name']) . "</td>";
-                        echo "<td>" . htmlspecialchars($row['vacancies']) . "</td>";
-                        echo "<td>" . htmlspecialchars($row['description']) . "</td>";
-                        echo "<td>" . htmlspecialchars($row['place_of_posting']) . "</td>";
-                        echo "<td>" . htmlspecialchars($row['type']) . "</td>";
-                        echo "<td>" . htmlspecialchars($row['age_limits']) . "</td>";
-                        echo "<td>" . htmlspecialchars($row['to_date']) . "</td>";
-                        echo "<td>";
-                        echo "<a href='job_details.php?id=" . htmlspecialchars($row['id']) . "&org=" . htmlspecialchars($row['name']) . "' class='btn btn-red btn-sm'>View</a>";
-                        echo "</td>";
-                        echo "</tr>";
+                    <?php
+                    if ($result->num_rows > 0) {
+                        while ($row = $result->fetch_assoc()) {
+                            echo "<tr>";
+                            echo "<td>" . htmlspecialchars($row['id']) . "</td>";
+                            echo "<td>" . htmlspecialchars($row['name']) . "</td>";
+                            echo "<td>" . htmlspecialchars($row['vacancies']) . "</td>";
+                            echo "<td>" . htmlspecialchars($row['description']) . "</td>";
+                            echo "<td>" . htmlspecialchars($row['place_of_posting']) . "</td>";
+                            echo "<td>" . htmlspecialchars($row['type']) . "</td>";
+                            echo "<td>" . htmlspecialchars($row['age_limits']) . "</td>";
+                            echo "<td>" . htmlspecialchars($row['to_date']) . "</td>";
+                            echo "<td>";
+                            echo "<a href='job_details.php?id=" . htmlspecialchars($row['id']) . "&org=" . htmlspecialchars($row['name']) . "' class='btn btn-red btn-sm'>View</a>";
+                            echo "</td>";
+                            echo "</tr>";
+                        }
+                    } else {
+                        echo "<tr><td colspan='9' class='text-center'>No jobs found</td></tr>";
                     }
-                } else {
-                    echo "<tr><td colspan='9' class='text-center'>No jobs found</td></tr>";
-                }
-                ?>
+                    ?>
                 </tbody>
             </table>
         </div>
     </div>
     <footer class="footer mt-auto py-3 bg-light">
-    <div class="container text-center">
-        <span class="text-muted">Copyright © 2024 [obcrights]</span><br>
-        <span class="text-muted">Powered by jobs.obcrights</span>
+        <div class="container text-center">
+            <span class="text-muted">Copyright © 2024 [obcrights]</span><br>
+            <span class="text-muted">Powered by jobs.obcrights</span>
+        </div>
+    </footer>
+
+    <!-- Welcome Popup Modal -->
+    <div class="modal fade" id="welcomeModal" tabindex="-1" role="dialog" aria-labelledby="welcomeModalLabel" aria-hidden="true" data-backdrop="false">
+        <div class="modal-dialog modal-dialog-centered" role="document">
+            <div class="modal-content">
+                <!-- Header background RED -->
+                <div class="modal-header text-white" style="background-color: red;">
+                    <h5 class="modal-title" id="welcomeModalLabel">
+                        <i class="fas fa-handshake"></i> Welcome to OBC Rights!
+                    </h5>
+                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body text-center">
+                    <p>Empowering OBC youth to achieve their constitutional rights in <strong>Education, Scholarships, Entrance Exams, and Jobs</strong>.</p>
+                    <p>Join our mission: <a href="https://obcrights.org/about-sfrbc/" target="_blank" style="color: red;">Learn More</a> | 
+                       <a href="https://chat.whatsapp.com/Dj6ZIz2VicOHKHaDyvbSxi" target="_blank"><i class="fab fa-whatsapp text-success"></i> WhatsApp</a></p>
+                </div>
+                <div class="modal-footer justify-content-center">
+                    <!-- Website Link Button (Red) -->
+                    <a href="https://obcrights.org/" class="btn btn-red">
+                        <i class="fas fa-external-link-alt"></i> Visit Website
+                    </a>
+                </div>
+            </div>
+        </div>
     </div>
-</footer>
+
+    <!-- Auto-show popup script with 5-second delay -->
+    <script>
+    $(document).ready(function() {
+        if (!sessionStorage.getItem('welcomePopupShown')) {
+            // Delay 5000ms (5 seconds) before showing
+            setTimeout(function() {
+                $('#welcomeModal').modal('show');
+                sessionStorage.setItem('welcomePopupShown', 'true');
+            }, 5000);
+        }
+        $('#jobsTable').DataTable();
+    });
+    </script>
+
 </body>
+
 </html>
