@@ -126,6 +126,31 @@ $result = $conn->query($query);
             font-family: monospace;
             color: azure;
             font-style: normal;
+            white-space: nowrap;
+        }
+
+        @media (max-width: 991px) {
+            .navbar-center {
+                position: static;
+                transform: none;
+                left: auto;
+                font-size: 24px;
+                flex-grow: 1;
+                text-align: center;
+                margin: 0;
+            }
+        }
+
+        .mobile-subscribe-container {
+            display: none;
+        }
+
+        @media (max-width: 991px) {
+            .mobile-subscribe-container {
+                display: block;
+                margin-top: 15px;
+                text-align: center;
+            }
         }
 
         .navbar-nav {
@@ -185,23 +210,88 @@ $result = $conn->query($query);
             display: block;
         }
 
-        /* --- CSS FOR POPUP: SCROLLABLE BODY + DULL BACKGROUND --- */
-        body.modal-open {
-            overflow: auto !important;
-            padding-right: 0 !important;
-        }
-        
-        .modal {
-            background-color: rgba(0, 0, 0, 0.5) !important; /* Dull background */
-            overflow-x: hidden;
-            overflow-y: hidden;
-            pointer-events: none;
+        /* --- SIDE POPUP STYLES --- */
+        .side-popup {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            width: 320px;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            z-index: 2000; /* High z-index to stay on top */
+            display: none;
+            overflow: hidden;
+            border: 1px solid rgba(0,0,0,0.1);
+            transition: all 0.4s ease;
         }
 
-        .modal-dialog {
-            pointer-events: auto;
+        .side-popup-header {
+            background-color: red;
+            color: white;
+            padding: 10px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
-        /* -------------------------------------------------------- */
+
+        .side-popup-header h5 {
+            font-size: 14px;
+            margin: 0;
+            font-weight: 600;
+        }
+
+        .side-popup-header .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 20px;
+            cursor: pointer;
+            line-height: 1;
+            padding: 0;
+        }
+
+        .side-popup-body {
+            padding: 15px;
+            font-size: 13px;
+            color: #333;
+            text-align: left;
+        }
+
+        .side-popup-body p {
+            margin-bottom: 8px;
+        }
+
+        .side-popup-footer {
+            padding: 0 15px 15px;
+        }
+
+        .side-popup .btn-red {
+            border-radius: 6px;
+            font-weight: 600;
+            font-size: 13px;
+            padding: 8px;
+        }
+
+        @media (max-width: 576px) {
+            .side-popup {
+                width: 260px; /* Smaller width for mobile */
+                top: 15px;
+                right: 15px;
+                border-radius: 10px;
+            }
+            .side-popup-header h5 {
+                font-size: 13px;
+            }
+            .side-popup-body {
+                font-size: 12px;
+                padding: 12px;
+            }
+            .side-popup-footer {
+                padding: 0 12px 12px;
+            }
+        }
+        /* -------------------------- */
 
     </style>
     <script src="https://code.jquery.com/jquery-3.7.1.js"></script>
@@ -230,8 +320,8 @@ $result = $conn->query($query);
             <img src="obclogo.jpg" width="80" height="50" class="d-inline-block align-top" alt="" loading="lazy">
         </a>
 
-        <!-- Blinking Subscribe button (top, like previous) -->
-        <a href="subscribe.php" class="btn btn-danger blink ml-2" style="font-weight:bold;">
+        <!-- Blinking Subscribe button (Desktop only) -->
+        <a href="subscribe.php" class="btn btn-danger blink ml-2 d-none d-lg-inline-block" style="font-weight:bold;">
             Subscribe
         </a>
 
@@ -259,7 +349,7 @@ $result = $conn->query($query);
                     </div>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="blogs.php">Blogs</a>
+                    <a class="nav-link" href="https://jobs.obcrights.org/Blogs/">Blogs</a>
                 </li>
                 <li class="nav-item">
                     <a class="nav-link" href="privatejobportal.php">Private Job Portals</a>
@@ -279,6 +369,12 @@ $result = $conn->query($query);
     </nav>
 
     <div class="container">
+        <!-- Mobile Subscribe Button -->
+        <div class="mobile-subscribe-container">
+            <a href="subscribe.php" class="btn btn-danger blink" style="font-weight:bold; padding: 10px 30px; border-radius: 8px;">
+                 Subscribe
+            </a>
+        </div>
         <!-- Display Total Vacancies -->
         <div class="row mt-4 justify-content-center">
             <div class="col-md-4 text-center">
@@ -365,51 +461,46 @@ $result = $conn->query($query);
     </div>
     <footer class="footer mt-auto py-3 bg-light">
         <div class="container text-center">
-            <span class="text-muted">Copyright © 2024 [obcrights]</span><br>
+            <span class="text-muted">Copyright © 2026 [obcrights]</span><br>
             <span class="text-muted">Powered by jobs.obcrights</span>
         </div>
     </footer>
 
-    <!-- Welcome Popup Modal -->
-    <div class="modal fade" id="welcomeModal" tabindex="-1" role="dialog" aria-labelledby="welcomeModalLabel" aria-hidden="true" data-backdrop="false">
-        <div class="modal-dialog modal-dialog-centered" role="document">
-            <div class="modal-content">
-                <!-- Header background RED -->
-                <div class="modal-header text-white" style="background-color: red;">
-                    <h5 class="modal-title" id="welcomeModalLabel">
-                        <i class="fas fa-handshake"></i> Welcome to OBC Rights!
-                    </h5>
-                    <button type="button" class="close text-white" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body text-center">
-                    <p>Empowering OBC youth to achieve their constitutional rights in <strong>Education, Scholarships, Entrance Exams, and Jobs</strong>.</p>
-                    <p>Join our mission: <a href="https://obcrights.org/about-sfrbc/" target="_blank" style="color: red;">Learn More</a> | 
-                       <a href="https://chat.whatsapp.com/Dj6ZIz2VicOHKHaDyvbSxi" target="_blank"><i class="fab fa-whatsapp text-success"></i> WhatsApp</a></p>
-                </div>
-                <div class="modal-footer justify-content-center">
-                    <!-- Website Link Button (Red) -->
-                    <a href="https://obcrights.org/" class="btn btn-red">
-                        <i class="fas fa-external-link-alt"></i> Visit Website
-                    </a>
-                </div>
-            </div>
+    <!-- Welcome Side Popup -->
+    <div id="sidePopup" class="side-popup">
+        <div class="side-popup-header">
+            <h5><i class="fas fa-handshake"></i> Welcome to OBC Rights!</h5>
+            <button type="button" class="close-btn" onclick="closeSidePopup()">&times;</button>
+        </div>
+        <div class="side-popup-body">
+            <p>Empowering OBC youth to achieve their constitutional rights in <strong>Education, Scholarships, Entrance Exams, and Jobs</strong>.</p>
+            <p>Join our mission: <br>
+               <a href="https://obcrights.org/about-sfrbc/" target="_blank" style="color: red;">Learn More</a> | 
+               <a href="https://chat.whatsapp.com/Dj6ZIz2VicOHKHaDyvbSxi" target="_blank"><i class="fab fa-whatsapp text-success"></i> WhatsApp</a></p>
+        </div>
+        <div class="side-popup-footer">
+            <a href="https://obcrights.org/" class="btn btn-red btn-block">
+                <i class="fas fa-external-link-alt"></i> Visit Website
+            </a>
         </div>
     </div>
 
-    <!-- Auto-show popup script with 5-second delay -->
+    <!-- Auto-show side popup script with 5-second delay -->
     <script>
     $(document).ready(function() {
-        if (!sessionStorage.getItem('welcomePopupShown')) {
+        if (!sessionStorage.getItem('sidePopupShown')) {
             // Delay 5000ms (5 seconds) before showing
             setTimeout(function() {
-                $('#welcomeModal').modal('show');
-                sessionStorage.setItem('welcomePopupShown', 'true');
+                $('#sidePopup').fadeIn();
+                sessionStorage.setItem('sidePopupShown', 'true');
             }, 5000);
         }
         $('#jobsTable').DataTable();
     });
+
+    function closeSidePopup() {
+        $('#sidePopup').fadeOut();
+    }
     </script>
 
 </body>
